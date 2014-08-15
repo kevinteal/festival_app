@@ -1,0 +1,132 @@
+ <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no" />
+	<title>Bloodstock</title>
+	<link rel="stylesheet" href="themes/soni.min.css" />
+    <link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="jquery.mobile.structure-1.4.2.min.css" />
+    <script type="text/javascript" src="phonegap.js"></script>
+   <script src="jquery-1.11.1.js"></script>
+   <script src="jqm/jquery.mobile-1.4.2.min.js"></script>
+   <script src="app_script.js"></script>
+   <script src="band_db.js"></script>
+	
+
+</head>
+<body>
+	<div data-role="page" data-theme="a" id="one">
+		<div data-role="header" data-position="inline">
+          <a href="#three" onClick="load_band_fav()" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-calendar"  data-transition="slide" data-direction="reverse">My Plan
+</a><!-- HEADING TO CHANGGGGGGGE-->
+			<h1>Bloodstock</h1>
+            <a href="#two" onClick="set_up_lineup(0,'system')" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-bars" data-transition="slide">Line-up
+</a>
+		</div>
+		<div data-role="content" data-theme="a" id="main_page_stages">
+           <span id="not_time"></span>
+     
+		</div><!-- content -->
+	</div><!-- page -->
+    
+    
+    
+    
+<!-- Start of second page: #two -->
+<div data-role="page" id="two" data-theme="a">
+
+	<div data-role="header">
+    <a href="#one" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-arrow-l" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 id="stage_name_heading">Apollo</h1>
+        <a href="#stage_panel" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-bars">Stages</a>
+	</div><!-- /header -->
+
+	<div data-role="content" data-theme="a">
+    
+    <!-- tab content is dynamically added here -->
+    <div data-role="tabs" id="tabs_lineup">
+			  <div data-role="navbar">
+				  <!-- WHEN ADDING DYNAMIC DAYS START CHANGE FROM HERE-->
+					
+					<ul id="nav_lineup">
+					  
+					</ul>
+					
+				</div>
+				  
+				
+				  
+		</div><!-- /TABS -->
+    
+	</div><!-- /content -->
+     
+	<div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="stage_panel" data-theme="b">
+					<!-- panel content goes here -->
+                   <center> <h4 >Select Stage</h4></center>
+    <ul data-role="listview" id="panel_stages">
+      
+    </ul>
+	</div><!-- /panel -->
+
+</div><!-- /page two -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- Start of third page: #two -->
+<div data-role="page" id="three" data-theme="a">
+
+	<div data-role="header">
+    <a href="#popupCon" data-rel="popup" data-position-to="window" data-transition="slideup" class="ui-btn ui-btn-left ui-corner-all ui-mini ui-btn-inline ui-icon-delete ui-btn-icon-left">Clear Plan</a>
+        <h1 id="plan_name_heading">My Plan</h1>
+        <a href="#one" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-arrow-r" data-transition="slide" >Back</a>
+	</div><!-- /header -->
+
+	<div data-role="content" data-theme="a">
+    
+    <div data-role="tabs" id="tabs_day">
+      <div data-role="navbar">
+      <!-- WHEN ADDING DYNAMIC DAYS START CHANGE FROM HERE-->
+        <ul id="navbar_fav">
+                   
+        </ul>
+      </div>
+    
+    </div> <!-- /TABS --> 
+    
+	</div><!-- /content -->
+     <div data-role="popup" id="popupCon" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
+    <div data-role="header" data-theme="a">
+    <h1>Clear Plan?</h1>
+    </div>
+    <div role="main" class="ui-content">
+    
+    <center>
+        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="slidedown" >Keep Plan</a>
+        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="slidedown" onClick="clearplan()" >Clear Plan</a>
+        </center>
+    </div>
+</div>
+</div><!-- /page three -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</body>
+
+</html>
