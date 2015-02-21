@@ -13,6 +13,13 @@
 /* Globals */
 /* Font
 -----------------------------------------------------------------------------------------------------------*/
+
+.info_i{
+	margin-left:3px;
+    background: none;
+    border: 0;
+}
+
 .now_playing_box{
 	border:1px #80FF00 solid;
 	padding:5px 2px;
@@ -25,10 +32,11 @@
 	width:90%;
 	margin:0 auto;
 	color:#999;
+
 }
 
 .now_playing_section span{
-	font-size:1.2em;
+	font-size:1em;
 	color:#fff;
 }
 
@@ -65,6 +73,11 @@ ul{
     padding: 0px !important;
 	/*background-color:#ccc !important;*/
     margin: 0px !important;
+}
+
+
+iframe{
+	border:1px solid #000;
 }
 
 .fav_bands{

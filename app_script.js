@@ -80,9 +80,15 @@ function add_to_plan2(e,method){
 		}
 		
 		if(pre_band && next_band){
-		if(pre_end>next_start){
+			var temp_pre = pre_end.substring(0,2);
+			temp_pre = temp_pre+""+pre_end.substring(3,5);
+			var temp_next = next_band.substring(0,2);
+			temp_next = temp_next+""+next_band.substring(3,5);
+			
+			
+		if(temp_pre>temp_next){
 			//clash
-			console.log("clash "+pre_band+" "+next_band);
+			console.log("clash "+temp_pre+" here "+pre_band+" "+next_band);
 			
 			//prev band check
 			if(!$("#fav"+band_id).parent().parent().prev().find(".lineup_band").hasClass("clash_bands")){
@@ -115,7 +121,11 @@ function add_to_plan2(e,method){
 			
 		}else{
 			var gaptime = get_gap_time(pre_end,next_start);
-			var content_gap = "<span class='small_text gap_time'><center>|<br/>"+gaptime+"<br/>|</center></span>";
+			var warning_icon = "";
+			if(gaptime == "00 mins"){
+				warning_icon = "<img src='imgs/warning.png' height='12' width='12' />";			 
+			}
+			var content_gap = "<span class='small_text gap_time'><center>|<br/>"+gaptime+warning_icon+"<br/>|</center></span>";
 			$(content_gap).insertBefore($("#fav"+band_id).parent().parent().next().find(".fav_bands"));
 			
 			
@@ -230,7 +240,8 @@ function set_up_main_page(){
 	
 	var fulldate=getFulldate();
 	var time = getFulltime();
-	//fulldate=20140706;
+	//alert(fulldate);
+	//fulldate=20140808;
 	//time=0050;
 	//sql to select all unique dates.
 	//create array as unknown lenght
@@ -294,8 +305,8 @@ function set_up_main_page(){
 								//if txs is closeed it runs in background and it doesnt add days therefore it skips what would be after
 								
 								//if today is one of the days bands play pull out the bands
-								
-								if(day_arr.indexOf(fulldate)!=-1){
+								//alert(day_arr);
+								if(day_arr.indexOf(parseInt(fulldate))!=-1){
 									//alert("day found");
 									
 									txs.executeSql('select * from bands where day = '+fulldate+' and start_time <= '+time+' and finish_time > '+time+' ', [], function(txs, results){
@@ -326,15 +337,13 @@ function set_up_main_page(){
 											}
 											
 											var name_length = BandRecord.band_name.length;
-											if(name_length>20){
+											if(name_length>18){
 												$("#stage"+BandRecord.stage_rank+"_now_band").css("fontSize","1em");
 											}
-											if(name_length>30){
+											if(name_length>23){
 												$("#stage"+BandRecord.stage_rank+"_now_band").css("fontSize","0.8em");
-											}
-											if(name_length>40){
 												var show_name = BandRecord.band_name;
-												show_name = show_name.substr(0,30)+"...";
+												show_name = show_name.substr(0,23)+"...";
 												$("#stage"+BandRecord.stage_rank+"_now_band").text(show_name);
 											}
 											
@@ -354,8 +363,9 @@ function set_up_main_page(){
 									next_bands(txs,i,fulldate,time);
 								}
 						
-									
+									set_up_lineup_page();
 								}else{
+								
 									set_up_lineup_page();
 									$("#not_time").html("Once The Festival Starts Bands Will Appear Here <br/><br/>");
 								}
@@ -393,16 +403,15 @@ function next_bands(txs,StageName,fulldate,time){
 									}else{
 										$("#stage"+BandRecord.stage_rank+"_next_band").css("color","#FFF");
 									}
-									var name_length = BandRecord.band_name.length;
-											if(name_length>20){
+									
+											var name_length = BandRecord.band_name.length;
+											if(name_length>18){
 												$("#stage"+BandRecord.stage_rank+"_next_band").css("fontSize","1em");
 											}
-											if(name_length>30){
+											if(name_length>23){
 												$("#stage"+BandRecord.stage_rank+"_next_band").css("fontSize","0.8em");
-											}
-											if(name_length>40){
 												var show_name = BandRecord.band_name;
-												show_name = show_name.substr(0,30)+"...";
+												show_name = show_name.substr(0,23)+"...";
 												$("#stage"+BandRecord.stage_rank+"_next_band").text(show_name);
 											}
 									
@@ -516,7 +525,7 @@ function set_up_lineup(stageNum,method){
 								
 								
 									
-								var content = '<div class="lineup_band" ><strong>'+show_name+'</strong>'+
+								var content = '<div class="lineup_band" ><span onclick="popup_band(\''+BandRecord.id+'\')"><strong>'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+
 														'<br/><span class="darker_text">'+start_time+' - '+finish_time+'</span><br/>'+
 													'<form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,0)">'+
 													'<option value="off" '+flip_off+' >Off</option> <option value="on" '+flip_on+' >On</option></select></form> </div>';
@@ -542,8 +551,11 @@ function set_up_lineup(stageNum,method){
 									*/
 										
 								}
-								$(".lineup_band").trigger('create');
+								var popup_content = '<div data-role="popup" id="popupInfo" data-position-to="origin" data-transition="slideup" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband">Here is a <strong>tiny popup</strong> being used like a tooltip. The text will wrap to multiple lines as needed.</p><iframe width="340" height="250"src="https://www.youtube.com/embed/qlCDRlEjwI0"></iframe></div>';
+								$("#tab_"+BandRecord.day).append(popup_content);
 								
+								$(".lineup_band").trigger('create');
+								$( "#popupInfo" ).popup();
 								// $('#tabs_lineup').tabs("refresh");
 								//$("#tabs_lineup").trigger('updatelayout');
 						});
@@ -553,6 +565,11 @@ function set_up_lineup(stageNum,method){
 				$("#stage_panel").panel("close");
 			 }
 			
+}
+
+function popup_band(bandid){
+	$("#popupband").text(bandid+" with this band id complete a transaction with db to get band info, create band info in db");
+	$( "#popupInfo" ).popup( "open" );
 }
 
 function bg_chang(day,sel){
@@ -680,7 +697,12 @@ function load_band_fav(){
 												}else{
 													//work out time between bands
 													var gaptime = get_gap_time(preEnd_1,start_time);
-													var content_gap = "<span class='small_text gap_time'><center>|<br/>"+gaptime+"<br/>|</center></span>";
+													
+													var warning_icon = "";
+													if(gaptime == "00 mins"){
+														warning_icon = "<img src='imgs/warning.png' height='12' width='12' />";			 
+													}
+													var content_gap = "<span class='small_text gap_time'><center>|<br/>"+gaptime+warning_icon+"<br/>|</center></span>";
 													$(content_gap).insertBefore($("#fav"+BandRecord.id));
 													
 												}
@@ -1000,6 +1022,8 @@ function get_gap_time(preEnd_time,start_time){
 	//(condition)?trueval:falseval
 	var formatted = ((HH == 0)?(""):HH+":") + ((MM < 10)?("0" + MM):MM) + ((HH>0)?" hrs":" mins");
 	//var formatted = ((HH < 10)?("0" + HH):HH) + ":" + ((MM < 10)?("0" + MM):MM);
+	
+	
 	return formatted;
 	
 }

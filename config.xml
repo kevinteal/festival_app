@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.soniplaner" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>SoniPlanner</name>
+<widget id="com.FestivalDayPlanner" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Festival Day Planner</name>
     <description>
-       Day Planner App for Sonisphere 2014
+       Festival Day Planner
     </description>
     <author email="kevin.teal1@gmail.com" href="http://phonegap.com">
         Kevin Teal
