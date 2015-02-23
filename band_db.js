@@ -13,7 +13,7 @@ function set_up_band_db(){
 		db.transaction(function (tx) {
 		
 		
-		tx.executeSql('DROP TABLE bands');
+		//tx.executeSql('DROP TABLE bands');
 		tx.executeSql('CREATE TABLE IF NOT EXISTS bands (id UNIQUE, band_name TEXT, stage TEXT, day INTEGER, start_time INTEGER, finish_time INTEGER, band_fav INTEGER, stage_rank INTEGER, day_name, video_link TEXT)');
 		
 		//thursday sophie tent

@@ -259,7 +259,7 @@ function set_up_main_page(){
 								
 								
 								
-								var content = ' <span id=stage'+i+'>'+result.stage+'</span>'+
+								var content = ' <span id=stage'+i+'><a class="stage_links" href="#two" onClick="set_up_lineup(\''+i+'\',\'system\')"" data-transition="slide">'+result.stage+' <img src="imgs/r-arr-over.png" height="12" width="12" /> </a></span>'+
 											'<div class="now_playing_box">'+
 											
 											'<div class="now_playing_section">Now: <span id=stage'+i+'_now_band></span>'+
@@ -525,7 +525,7 @@ function set_up_lineup(stageNum,method){
 								
 								
 									
-								var content = '<div class="lineup_band" ><span onclick="popup_band(\''+BandRecord.id+'\')"><strong>'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+
+								var content = '<div class="lineup_band" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\')"><strong>'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+
 														'<br/><span class="darker_text">'+start_time+' - '+finish_time+'</span><br/>'+
 													'<form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,0)">'+
 													'<option value="off" '+flip_off+' >Off</option> <option value="on" '+flip_on+' >On</option></select></form> </div>';
@@ -551,11 +551,12 @@ function set_up_lineup(stageNum,method){
 									*/
 										
 								}
-								var popup_content = '<div data-role="popup" id="popupInfo" data-position-to="origin" data-transition="slideup" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband">Here is a <strong>tiny popup</strong> being used like a tooltip. The text will wrap to multiple lines as needed.</p><iframe width="340" height="250"src="https://www.youtube.com/embed/qlCDRlEjwI0"></iframe></div>';
+								var popup_content = '<div data-role="popup" id="popupInfo" data-position-to="origin" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband">Here is a <strong>tiny popup</strong> being used like a tooltip. The text will wrap to multiple lines as needed. </p> <span id="popuplink"></span> <span id="popupvid"></span></div>';
 								$("#tab_"+BandRecord.day).append(popup_content);
 								
 								$(".lineup_band").trigger('create');
 								$( "#popupInfo" ).popup();
+								
 								// $('#tabs_lineup').tabs("refresh");
 								//$("#tabs_lineup").trigger('updatelayout');
 						});
@@ -567,9 +568,13 @@ function set_up_lineup(stageNum,method){
 			
 }
 
-function popup_band(bandid){
-	$("#popupband").text(bandid+" with this band id complete a transaction with db to get band info, create band info in db");
+function popup_band(bandid,name){
+	var vid_link = "https://www.youtube.com/embed/xX6UjWMffaY";
 	$( "#popupInfo" ).popup( "open" );
+	$("#popupband").text(name+": "+bandid+" use id to get vid link from db ");
+	$("#popupvid").html("<iframe  width='100%' height='215' src="+vid_link+" frameborder='0' allowfullscreen></iframe>");
+	$("#popuplink").html("<a target='_blank' href='https://www.youtube.com/watch?v=qlCDRlEjwI0'>Band Link</a>");
+	
 }
 
 function bg_chang(day,sel){

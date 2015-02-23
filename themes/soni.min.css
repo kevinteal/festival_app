@@ -19,6 +19,12 @@
     background: none;
     border: 0;
 }
+.stage_links{
+	text-decoration:none;
+	color:white !important;
+	font-size:1em !important;
+	font-weight:300 !important;
+}
 
 .now_playing_box{
 	border:1px #80FF00 solid;
