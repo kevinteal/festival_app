@@ -80,12 +80,14 @@ function add_to_plan2(e,method){
 		}
 		
 		if(pre_band && next_band){
+			console.log("pre+NEXT");
 			var temp_pre = pre_end.substring(0,2);
 			temp_pre = temp_pre+""+pre_end.substring(3,5);
-			var temp_next = next_band.substring(0,2);
-			temp_next = temp_next+""+next_band.substring(3,5);
+			var temp_next = next_start.substring(0,2);
+			temp_next = temp_next+""+next_start.substring(3,5);
 			
-			
+			console.log(temp_pre);
+			console.log(temp_next);
 		if(temp_pre>temp_next){
 			//clash
 			console.log("clash "+temp_pre+" here "+pre_band+" "+next_band);
@@ -102,7 +104,7 @@ function add_to_plan2(e,method){
 				//if has clash then empty the text and replace with this band as old clash could be name of band removed
 				$("#fav"+band_id).parent().parent().prev().find(".clash_banner").text("Clash with "+next_band+"!");	
 				console.log(pre_band+" MULTI CLASH: "+next_band);
-				console.log("COULD BE FAKED");
+				//console.log("COULD BE FAKED");
 			}
 			
 			
@@ -262,11 +264,11 @@ function set_up_main_page(){
 								var content = ' <span id=stage'+i+'><a class="stage_links" href="#two" onClick="set_up_lineup(\''+i+'\',\'system\')"" data-transition="slide">'+result.stage+' <img src="imgs/r-arr-over.png" height="12" width="12" /> </a></span>'+
 											'<div class="now_playing_box">'+
 											
-											'<div class="now_playing_section">Now: <span id=stage'+i+'_now_band></span>'+
+											'<div class="now_playing_section">Now: <span id=stage'+i+'_now_band></span><span id="stage'+i+'_now_band_info"></span>'+
 											'<br/>Finish: <span id=stage'+i+'_now_finish></span>'+
 											'</div>'+
 											
-										   ' <div class="now_playing_section">Next: <span id=stage'+i+'_next_band></span>'+
+										   ' <div class="now_playing_section">Next: <span id=stage'+i+'_next_band></span><span id="stage'+i+'_next_band_info"></span>'+
 											'<br/>Set Time: <span id=stage'+i+'_next_start></span> - <span id=stage'+i+'_next_finish></span>'+
 											'</div>'+
 											
@@ -320,6 +322,8 @@ function set_up_main_page(){
 											
 											//console.log(BandRecord.band_name+" start time: "+BandRecord.start_time+" stage: "+BandRecord.stage);
 											$("#stage"+BandRecord.stage_rank+"_now_band").text(BandRecord.band_name);
+											$("#stage"+BandRecord.stage_rank+"_now_band_info").html('<img class="info_i" src="imgs/info.png" width="12" height="12" />');
+											$("#stage"+BandRecord.stage_rank+"_now_band_info, #stage"+BandRecord.stage_rank+"_now_band").click(createCallback( BandRecord.id,BandRecord.band_name,'mainpage' ) );
 											var finish_time = BandRecord.finish_time.toString();
 											
 											if(finish_time.length<4){
@@ -386,6 +390,8 @@ function next_bands(txs,StageName,fulldate,time){
 									var BandRecord = results.rows.item(i);
 									//console.log(BandRecord.band_name+" start time: "+BandRecord.start_time+" stage: "+BandRecord.stage);
 									$("#stage"+BandRecord.stage_rank+"_next_band").text(BandRecord.band_name);
+									$("#stage"+BandRecord.stage_rank+"_next_band_info").html('<img class="info_i" src="imgs/info.png" width="12" height="12" />');
+									$("#stage"+BandRecord.stage_rank+"_next_band_info, #stage"+BandRecord.stage_rank+"_next_band").click(createCallback( BandRecord.id,BandRecord.band_name,'mainpage' ) );
 									var start_time = BandRecord.start_time.toString();
 									if(start_time.length<4){
 										start_time=add_zeros(start_time);
@@ -525,7 +531,7 @@ function set_up_lineup(stageNum,method){
 								
 								
 									
-								var content = '<div class="lineup_band" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\')"><strong>'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+
+								var content = '<div class="lineup_band" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'lineup\')"><strong>'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+
 														'<br/><span class="darker_text">'+start_time+' - '+finish_time+'</span><br/>'+
 													'<form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,0)">'+
 													'<option value="off" '+flip_off+' >Off</option> <option value="on" '+flip_on+' >On</option></select></form> </div>';
@@ -551,11 +557,11 @@ function set_up_lineup(stageNum,method){
 									*/
 										
 								}
-								var popup_content = '<div data-role="popup" id="popupInfo" data-position-to="origin" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband">Here is a <strong>tiny popup</strong> being used like a tooltip. The text will wrap to multiple lines as needed. </p> <span id="popuplink"></span> <span id="popupvid"></span></div>';
+								var popup_content = '<div data-role="popup" id="popupInfo_lineup" data-position-to="origin" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband_lineup"></p> <span id="popuplink_lineup"></span> <span id="popupvid_lineup"></span></div>';
 								$("#tab_"+BandRecord.day).append(popup_content);
 								
 								$(".lineup_band").trigger('create');
-								$( "#popupInfo" ).popup();
+								$( "#popupInfo_lineup" ).popup();
 								
 								// $('#tabs_lineup').tabs("refresh");
 								//$("#tabs_lineup").trigger('updatelayout');
@@ -568,14 +574,22 @@ function set_up_lineup(stageNum,method){
 			
 }
 
-function popup_band(bandid,name){
+function popup_band(bandid,name,popupid){
+	console.log(popupid);
+	console.log(bandid);
+	console.log(name);
 	var vid_link = "https://www.youtube.com/embed/xX6UjWMffaY";
-	$( "#popupInfo" ).popup( "open" );
-	$("#popupband").text(name+": "+bandid+" use id to get vid link from db ");
-	$("#popupvid").html("<iframe  width='100%' height='215' src="+vid_link+" frameborder='0' allowfullscreen></iframe>");
-	$("#popuplink").html("<a target='_blank' href='https://www.youtube.com/watch?v=qlCDRlEjwI0'>Band Link</a>");
-	
+	$( "#popupInfo_"+popupid ).popup( "open" );
+	$("#popupband_"+popupid).text(name+": "+bandid+" use id to get vid link from db ");
+	$("#popupvid_"+popupid).html("<iframe  width='100%' height='215' src="+vid_link+" frameborder='0' allowfullscreen></iframe>");
+	$("#popuplink_"+popupid).html("<a target='_blank' href='https://www.youtube.com/watch?v=qlCDRlEjwI0'>Band Link</a>");
 }
+function createCallback( bandid, name, popupid ){
+  return function(){
+   popup_band(bandid,name,popupid);
+  }
+}
+
 
 function bg_chang(day,sel){
 	//3D505B -selected
@@ -675,7 +689,7 @@ function load_band_fav(){
 												show_name = show_name.substr(0,20)+"...";
 											}
 											
-								var content = '<ul><li><div id=fav'+BandRecord.id+' class="lineup_band morehight fav_bands" ><strong class="band_name_fav" >'+show_name+'			                                               </strong>'+'<br/><span class="darker_text"><span class="band_start_fav">'+start_time+'</span> - <span class="band_end_fav">'+finish_time+'		                                               </span><br/>'+band_stage_show+'</span><br/><form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,1)"><option value="off" >Off</option> <option value="on" selected >On</option></select></form> </div></li></ul>';
+								var content = '<ul><li><div id=fav'+BandRecord.id+' class="lineup_band morehight fav_bands" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'fav\')"><strong class="band_name_fav" >'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+'<br/><span class="darker_text"><span class="band_start_fav">'+start_time+'</span> - <span class="band_end_fav">'+finish_time+'</span><br/>'+band_stage_show+'</span><br/><form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,1)"><option value="off" >Off</option> <option value="on" selected >On</option></select></form> </div></li></ul>';
 											
 											
 											
