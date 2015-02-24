@@ -578,11 +578,24 @@ function popup_band(bandid,name,popupid){
 	console.log(popupid);
 	console.log(bandid);
 	console.log(name);
-	var vid_link = "https://www.youtube.com/embed/xX6UjWMffaY";
-	$( "#popupInfo_"+popupid ).popup( "open" );
-	$("#popupband_"+popupid).text(name+": "+bandid+" use id to get vid link from db ");
-	$("#popupvid_"+popupid).html("<iframe  width='100%' height='215' src="+vid_link+" frameborder='0' allowfullscreen></iframe>");
-	$("#popuplink_"+popupid).html("<a target='_blank' href='https://www.youtube.com/watch?v=qlCDRlEjwI0'>Band Link</a>");
+	
+	db.transaction(function (tx) {
+		
+			tx.executeSql('select * from bands where id = '+bandid+' ', [], function(tx, results){
+				
+				var BandRecord = results.rows.item(0);
+				console.log("record: "+ BandRecord.day +" "+ BandRecord.video_link);
+				
+				var vid_link = "https://www.youtube.com/embed/xX6UjWMffaY";
+				$( "#popupInfo_"+popupid ).popup( "open" );
+				$("#popupband_"+popupid).text(BandRecord.band_name+": "+BandRecord.id+", "+BandRecord.stage+", "+BandRecord.start_time+":"+BandRecord.finish_time);
+				$("#popupvid_"+popupid).html("<iframe  width='100%' height='215' src="+vid_link+" frameborder='0' allowfullscreen></iframe>");
+				$("#popuplink_"+popupid).html("<a target='_blank' href='https://www.youtube.com/watch?v=qlCDRlEjwI0'>Band Link</a>");
+			});
+		
+	});
+	
+
 }
 function createCallback( bandid, name, popupid ){
   return function(){
