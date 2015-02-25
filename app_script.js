@@ -1071,16 +1071,16 @@ function smaller_band_name(band_name){
 }
 
 function clearplan(){
-	//console.log("clear plan");
+	console.log("clear plan");
 	db.transaction(function (txs) {
 				txs.executeSql('UPDATE bands SET band_fav=0 WHERE band_fav=1');
 		});
 		//tabs need refreshing but this way should work faster for same result.
 		//$("#tab_one_day,#tab_two_day,#tab_three_day").empty();
 		$.each(day_arr, function (index,val){
-
-		$("#tabs_day_"+val).empty();
-		
+		//console.log(val+" remeeeeving");
+		$("#tab_day_"+val).empty();	
+		//$("#tabs_day").trigger('updatelayout');	
 	});
 }
 
