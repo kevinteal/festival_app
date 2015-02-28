@@ -1080,7 +1080,7 @@ function clearplan(){
 		$.each(day_arr, function (index,val){
 		//console.log(val+" remeeeeving");
 		$("#tab_day_"+val).empty();	
-		//$("#tabs_day").trigger('updatelayout');	
+	
 	});
 }
 
