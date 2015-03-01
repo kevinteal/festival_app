@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no" />
-	<title>Bloodstock</title>
+	<title>Festival Day Planner</title>
 	<link rel="stylesheet" href="themes/soni.min.css" />
     <link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
 	<link rel="stylesheet" href="jquery.mobile.structure-1.4.2.min.css" />
@@ -19,15 +19,14 @@
 <body>
 	<div data-role="page" data-theme="a" id="one">
 		<div data-role="header" data-position="inline">
-          <a href="#three" onClick="load_band_fav()" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-calendar"  data-transition="slide" data-direction="reverse">My Plan
-</a><!-- HEADING TO CHANGGGGGGGE-->
-			<h1>Bloodstock</h1>
-            <a href="#two" onClick="set_up_lineup(0,'system')" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-bars" data-transition="slide">Lineup
+          <a href="#three" onClick="load_band_fav()" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-calendar ui-btn-icon-notext"  data-transition="slide" data-direction="reverse"></a><!-- HEADING TO CHANGGGGGGGE-->
+			<h1 id="smaller_text">Now Playing</h1>
+            <a href="#two" onClick="set_up_lineup(0,'system')" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-grid ui-btn-icon-notext" data-transition="slide">Lineup
 </a>
 		</div>
 		<div data-role="content" data-theme="a" id="main_page_stages">
            <span id="not_time"></span>
-           <div data-role="popup" id="popupInfo_mainpage" data-position-to="origin" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband_mainpage">Here is a  </p> <span id="popuplink_mainpage">link</span> <span id="popupvid_mainpage">vid</span></div>
+           <div data-role="popup" id="popupInfo_mainpage" data-position-to="window" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband_mainpage">Here is a  </p> <span id="popuplink_mainpage">link</span> <span id="popupvid_mainpage">vid</span></div>
      
 		</div><!-- content -->
 	</div><!-- page -->
@@ -38,9 +37,9 @@
 <div data-role="page" id="two" data-theme="a">
 
 	<div data-role="header">
-    <a href="#one" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-arrow-l" data-transition="slide" data-direction="reverse">Back</a>
+    <a href="#one" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-home ui-btn-icon-notext" data-transition="slide" data-direction="reverse">Back</a>
         <h1 id="stage_name_heading">Lineup</h1>
-        <a href="#stage_panel" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-bars">Stages</a>
+        <a href="#stage_panel" class="ui-btn-right  ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-gear ui-btn-icon-notext" >Stages</a>
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="a">
@@ -87,7 +86,7 @@
 	<div data-role="header">
     <a href="#popupCon" data-rel="popup" data-position-to="window" data-transition="slideup" class="red-button ui-btn ui-btn-left ui-corner-all ui-mini ui-btn-inline ui-icon-delete ui-btn-icon-left">Clear Plan</a>
         <h1 id="plan_name_heading">My Plan</h1>
-        <a href="#one" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-arrow-r" data-transition="slide" >Back</a>
+        <a href="#one" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-home ui-btn-icon-notext" data-transition="slide" >Back</a>
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="a">
@@ -104,7 +103,7 @@
     
 	</div><!-- /content -->
      
-     <div data-role="popup" id="popupInfo_fav" data-position-to="origin" data-transition="pop" class="ui-content" data-theme="a" style="		max-width:350px;"> <p id="popupband_fav">Here is a  </p> <span id="popuplink_fav">link</span> <span id="popupvid_fav">vid</span></div>
+     <div data-role="popup" id="popupInfo_fav" data-position-to="window" data-transition="pop" class="ui-content" data-theme="a" style="		max-width:350px;"> <p id="popupband_fav">Here is a  </p> <span id="popuplink_fav">link</span> <span id="popupvid_fav">vid</span></div>
      
      <div data-role="popup" id="popupCon" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
     <div data-role="header" data-theme="a">

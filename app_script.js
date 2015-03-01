@@ -9,6 +9,9 @@ $(document).ready(function(e) {
 	//if it exists then check date with todays date
 	//if date is not a soni date then show message saying when festival starts bands will appear here
 	set_up_band_db();
+	$(document).on("popupafteropen", function() {
+    $('#popupInfo_lineup, #popupInfo_mainpage, #popupInfo_fav').popup('reposition', 'positionTo: window');
+});
 });
 
 function add_to_plan2(e,method){
@@ -557,7 +560,7 @@ function set_up_lineup(stageNum,method){
 									*/
 										
 								}
-								var popup_content = '<div data-role="popup" id="popupInfo_lineup" data-position-to="origin" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband_lineup"></p> <span id="popuplink_lineup"></span> <span id="popupvid_lineup"></span></div>';
+								var popup_content = '<div data-role="popup" id="popupInfo_lineup" data-position-to="window" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband_lineup"></p> <span id="popuplink_lineup"></span> <span id="popupvid_lineup"></span></div>';
 								$("#tab_"+BandRecord.day).append(popup_content);
 								
 								$(".lineup_band").trigger('create');
