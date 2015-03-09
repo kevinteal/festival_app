@@ -91,8 +91,11 @@ function add_to_plan2(e,method){
 			
 			console.log(temp_pre);
 			console.log(temp_next);
-		if(temp_pre>temp_next){
+			var test = temp_next.substring(0,1);
+			var test2 = temp_pre.substring(0,1);
+		if(temp_pre>temp_next && test!=0){
 			//clash
+			
 			console.log("clash "+temp_pre+" here "+pre_band+" "+next_band);
 			
 			//prev band check
@@ -125,7 +128,19 @@ function add_to_plan2(e,method){
 			}
 			
 		}else{
-			var gaptime = get_gap_time(pre_end,next_start);
+			
+				console.log("maybe condition"+test);
+			var opt = 0;
+			//diff days
+			if(test==0 && test2!=0){
+				opt = 1;
+			}
+			//same day
+			if(test==0 && test2==0){
+				opt = 0;
+			}
+			//fix opt setting 0 or 1 if next start is less than 07 and pre end is greater than 07 make 1 else 0
+			var gaptime = get_gap_time(pre_end,next_start,opt);
 			var warning_icon = "";
 			if(gaptime == "00 mins"){
 				warning_icon = "<img src='imgs/warning.png' height='12' width='12' />";			 
@@ -321,38 +336,8 @@ function set_up_main_page(){
 										{	
 										
 											var BandRecord = results.rows.item(i);
+											now_playing_content(BandRecord,"now");
 											
-											
-											//console.log(BandRecord.band_name+" start time: "+BandRecord.start_time+" stage: "+BandRecord.stage);
-											$("#stage"+BandRecord.stage_rank+"_now_band").text(BandRecord.band_name);
-											$("#stage"+BandRecord.stage_rank+"_now_band_info").html('<img class="info_i" src="imgs/info.png" width="12" height="12" />');
-											$("#stage"+BandRecord.stage_rank+"_now_band_info, #stage"+BandRecord.stage_rank+"_now_band").click(createCallback( BandRecord.id,BandRecord.band_name,'mainpage' ) );
-											var finish_time = BandRecord.finish_time.toString();
-											
-											if(finish_time.length<4){
-												finish_time=add_zeros(finish_time);
-											}
-											
-											finish_time=finish_time.substring(0,2)+":"+finish_time.substring(2,4);
-		
-											$("#stage"+BandRecord.stage_rank+"_now_finish").text(finish_time);
-											
-											if(BandRecord.band_fav==1){
-												$("#stage"+BandRecord.stage_rank+"_now_band").css("color","#80FF00");
-											}else{
-												$("#stage"+BandRecord.stage_rank+"_now_band").css("color","#FFF");
-											}
-											
-											var name_length = BandRecord.band_name.length;
-											if(name_length>18){
-												$("#stage"+BandRecord.stage_rank+"_now_band").css("fontSize","1em");
-											}
-											if(name_length>23){
-												$("#stage"+BandRecord.stage_rank+"_now_band").css("fontSize","0.8em");
-												var show_name = BandRecord.band_name;
-												show_name = show_name.substr(0,23)+"...";
-												$("#stage"+BandRecord.stage_rank+"_now_band").text(show_name);
-											}
 											
 										}
 										//keep inside transaction as the days will not be known outside due to threading
@@ -386,49 +371,72 @@ function set_up_main_page(){
 
 
 function next_bands(txs,StageName,fulldate,time){
+//***limit sql to inculde start time of after 0700 unless time is under 700 itself
+//if time is under 700 go as normal
+//YOUR GOING TO BE SATURDAY LOOKING FOR FRIDAY RESULTS.
+//so if time is under 700 look for day BEFORE...
+//if time is greater than 700 look for TODAY
+//if time is greater than 23 AND NO RESULTS FOUND look for day BEFORE
+
 	txs.executeSql('select * from bands where day = '+fulldate+' and start_time > '+time+' and stage_rank="'+StageName+'" order by start_time ASC Limit 1', [], function(txs, results){
 							var len = results.rows.length, i;
 							for(i=0;i<len;i++)
-								{			
+								{	
+//***if results == 0 and time is greater than 23 or less than 7 search again with start_time before 700		
 									var BandRecord = results.rows.item(i);
-									//console.log(BandRecord.band_name+" start time: "+BandRecord.start_time+" stage: "+BandRecord.stage);
-									$("#stage"+BandRecord.stage_rank+"_next_band").text(BandRecord.band_name);
-									$("#stage"+BandRecord.stage_rank+"_next_band_info").html('<img class="info_i" src="imgs/info.png" width="12" height="12" />');
-									$("#stage"+BandRecord.stage_rank+"_next_band_info, #stage"+BandRecord.stage_rank+"_next_band").click(createCallback( BandRecord.id,BandRecord.band_name,'mainpage' ) );
+									
 									var start_time = BandRecord.start_time.toString();
 									if(start_time.length<4){
 										start_time=add_zeros(start_time);
 									}
 									start_time=start_time.substring(0,2)+":"+start_time.substring(2,4);
 									$("#stage"+BandRecord.stage_rank+"_next_start").text(start_time);
-									var finish_time = BandRecord.finish_time.toString();
-									if(finish_time.length<4){
-										finish_time=add_zeros(finish_time);
-									}
-									finish_time=finish_time.substring(0,2)+":"+finish_time.substring(2,4);
-									$("#stage"+BandRecord.stage_rank+"_next_finish").text(finish_time);
-									if(BandRecord.band_fav==1){
-										$("#stage"+BandRecord.stage_rank+"_next_band").css("color","#80FF00");
-									}else{
-										$("#stage"+BandRecord.stage_rank+"_next_band").css("color","#FFF");
-									}
 									
-											var name_length = BandRecord.band_name.length;
-											if(name_length>18){
-												$("#stage"+BandRecord.stage_rank+"_next_band").css("fontSize","1em");
-											}
-											if(name_length>23){
-												$("#stage"+BandRecord.stage_rank+"_next_band").css("fontSize","0.8em");
-												var show_name = BandRecord.band_name;
-												show_name = show_name.substr(0,23)+"...";
-												$("#stage"+BandRecord.stage_rank+"_next_band").text(show_name);
-											}
+									now_playing_content(BandRecord,"next");
+									
 									
 								}
 								
 						});
 }
 
+
+function now_playing_content(BandRecord,next_now){
+	var opt = "now";
+	if(next_now=="next"){
+		opt="next";
+	}else{
+		opt="now";
+	}
+	
+	//console.log(BandRecord.band_name+" start time: "+BandRecord.start_time+" stage: "+BandRecord.stage);
+	$("#stage"+BandRecord.stage_rank+"_"+opt+"_band").text(BandRecord.band_name);
+	$("#stage"+BandRecord.stage_rank+"_"+opt+"_band_info").html('<img class="info_i" src="imgs/info.png" width="12" height="12" />');
+	$("#stage"+BandRecord.stage_rank+"_"+opt+"_band_info, #stage"+BandRecord.stage_rank+"_"+opt+"_band").click(createCallback( BandRecord.id,BandRecord.band_name,'mainpage' ) );
+	
+	
+	var finish_time = BandRecord.finish_time.toString();
+	if(finish_time.length<4){
+		finish_time=add_zeros(finish_time);
+		}
+		finish_time=finish_time.substring(0,2)+":"+finish_time.substring(2,4);
+		$("#stage"+BandRecord.stage_rank+"_"+opt+"_finish").text(finish_time);
+		if(BandRecord.band_fav==1){
+			$("#stage"+BandRecord.stage_rank+"_"+opt+"_band").css("color","#80FF00");
+			}else{
+				$("#stage"+BandRecord.stage_rank+"_"+opt+"_band").css("color","#FFF");
+				}
+		var name_length = BandRecord.band_name.length;
+		if(name_length>18){
+				$("#stage"+BandRecord.stage_rank+"_"+opt+"_band").css("fontSize","1em");
+		}
+		if(name_length>23){
+				$("#stage"+BandRecord.stage_rank+"_"+opt+"_band").css("fontSize","0.8em");
+				var show_name = BandRecord.band_name;
+				show_name = show_name.substr(0,23)+"...";
+				$("#stage"+BandRecord.stage_rank+"_"+opt+"_band").text(show_name);
+		}
+}
 
 function getFulldate()
 	{
@@ -487,88 +495,51 @@ function set_up_lineup(stageNum,method){
 		$("#tab_"+val).empty();
 	});
 	
-	 db.transaction(function (txs) {
+	
+
+ db.transaction(function (txs) {
 		 				//how many days is being logged.	
 						console.log(day_arr.length);
 		
-						txs.executeSql('select * from bands where stage_rank = '+stageNum+' order by start_time DESC ', [], function(txs, results){
+						txs.executeSql('select * from bands where stage_rank = '+stageNum+' and start_time>=700 order by start_time DESC ', [], function(txs, results){
 							var len = results.rows.length, i;
 							for(var i=0;i<len;i++)
 								{	
 								
 								var BandRecord = results.rows.item(i);
-								$("#stage_name_heading").text(BandRecord.stage);
-								var finish_time = BandRecord.finish_time.toString();
-								
-								
-								
-									if(finish_time.length<4){
-										finish_time=add_zeros(finish_time);
-									}						
-								
-								finish_time=finish_time.substring(0,2)+":"+finish_time.substring(2,4);
-									
-								var start_time = BandRecord.start_time.toString();
-								
-									if(start_time.length<4){
-										start_time=add_zeros(start_time);
-									}
-								
-								
-								start_time=start_time.substring(0,2)+":"+start_time.substring(2,4);
-								
-								var flip_off = "selected";
-								var flip_on = "";
-								if(BandRecord.band_fav==1){
-									flip_off="";
-									flip_on="selected";
-									//console.log(BandRecord.band_fav);
-								}
-								
-								var name_length = BandRecord.band_name.length;
-								var show_name = BandRecord.band_name;
-											if(name_length>20){
-												show_name = show_name.substr(0,20)+"...";
-											}
-								
-								
-								
-									
-								var content = '<div class="lineup_band" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'lineup\')"><strong>'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+
-														'<br/><span class="darker_text">'+start_time+' - '+finish_time+'</span><br/>'+
-													'<form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,0)">'+
-													'<option value="off" '+flip_off+' >Off</option> <option value="on" '+flip_on+' >On</option></select></form> </div>';
-								
-								
-									
-									//if set up tabs using day date as extension to id then something like
-									//$("#tab_"+date).append(content);
-									//could be used
-									
-									$("#tab_"+BandRecord.day).append(content);
-									
-									/*
-									if(BandRecord.day==day_arr[0]){
-									$("#tab_one").append(content);
-									}
-									if(BandRecord.day==day_arr[1]){
-									$("#tab_two").append(content);
-									}
-									if(BandRecord.day==day_arr[2]){
-									$("#tab_three").append(content);
-									}
-									*/
-										
+								var content = lineup_content(BandRecord);	
+								$("#tab_"+BandRecord.day).append(content);		
 								}
 								var popup_content = '<div data-role="popup" id="popupInfo_lineup" data-position-to="window" data-transition="pop" class="ui-content" data-theme="a" style="max-width:350px;"> <p id="popupband_lineup"></p> <span id="popuplink_lineup"></span> <span id="popupvid_lineup"></span></div>';
+								console.log("popcount");
 								$("#tab_"+BandRecord.day).append(popup_content);
 								
-								$(".lineup_band").trigger('create');
+							$(".lineup_band").trigger('create');
 								$( "#popupInfo_lineup" ).popup();
+								
+						});
+						txs.executeSql('select * from bands where stage_rank = '+stageNum+' and start_time<700 order by start_time ASC ', [], function(txs, results){
+							
+							
+							var len = results.rows.length, i;
+							for(var i=0;i<len;i++)
+								{	
+									var BandRecord = results.rows.item(i);
+									var content = lineup_content(BandRecord);							
+							
+									$("#tab_"+BandRecord.day).prepend(content);
+							
+							
+								}	
+								$(".lineup_band").trigger('create');
+								
+								
+						});
+						
+						
 								
 								// $('#tabs_lineup').tabs("refresh");
 								//$("#tabs_lineup").trigger('updatelayout');
-						});
 			 });
 			 
 			 if(method=="panel"){
@@ -576,6 +547,43 @@ function set_up_lineup(stageNum,method){
 			 }
 			
 }
+
+function lineup_content(BandRecord){
+	$("#stage_name_heading").text(BandRecord.stage);
+	var finish_time = BandRecord.finish_time.toString();
+	if(finish_time.length<4){
+		finish_time=add_zeros(finish_time);
+	}						
+								
+	finish_time=finish_time.substring(0,2)+":"+finish_time.substring(2,4);
+									
+	var start_time = BandRecord.start_time.toString();
+								
+	if(start_time.length<4){
+		start_time=add_zeros(start_time);
+		}
+		
+		start_time=start_time.substring(0,2)+":"+start_time.substring(2,4);
+		var flip_off = "selected";
+		var flip_on = "";
+		if(BandRecord.band_fav==1){
+			flip_off="";
+			flip_on="selected";
+			//console.log(BandRecord.band_fav);
+			}
+			var name_length = BandRecord.band_name.length;
+			var show_name = BandRecord.band_name;
+			if(name_length>20){
+				show_name = show_name.substr(0,20)+"...";
+				}
+				var content = '<div class="lineup_band" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'lineup\')"><strong>'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+
+						'<br/><span class="darker_text">'+start_time+' - '+finish_time+'</span><br/>'+
+						'<form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,0)">'+
+						'<option value="off" '+flip_off+' >Off</option> <option value="on" '+flip_on+' >On</option></select></form> </div>';
+	
+	return content;
+}
+
 
 function popup_band(bandid,name,popupid){
 	console.log(popupid);
@@ -668,7 +676,7 @@ function load_band_fav(){
 		// console.log(day_arr);
 		 $.each(day_arr, function (index,val){
 						
-						txs.executeSql('select * from bands where band_fav=1 and day='+val+' order by start_time ASC ', [], function(txs, results){
+						txs.executeSql('select * from bands where band_fav=1 and day='+val+' and start_time>=700 order by start_time ASC ', [], function(txs, results){
 							var len = results.rows.length, i;
 							
 							var preEnd_1 = 0;
@@ -676,39 +684,10 @@ function load_band_fav(){
 							var preId_1 = "";
 							var count_1 = 0;
 							
-							
 							for(i=0;i<len;i++)
 								{	
 								var BandRecord = results.rows.item(i);
-																
-								
-								var finish_time = BandRecord.finish_time.toString();
-								if(finish_time.length<4){
-												finish_time=add_zeros(finish_time);
-											}
-								finish_time=finish_time.substring(0,2)+":"+finish_time.substring(2,4);
-									
-								var start_time = BandRecord.start_time.toString();
-								if(start_time.length<4){
-												start_time=add_zeros(start_time);
-											}
-								start_time=start_time.substring(0,2)+":"+start_time.substring(2,4);
-								
-								var band_stage_show = BandRecord.stage;
-									if(BandRecord.stage.length>20)
-									{
-										band_stage_show = BandRecord.stage.substr(0,28)+"..";
-									}
-								var name_length = BandRecord.band_name.length;
-								var show_name = BandRecord.band_name;
-											if(name_length>20){
-												show_name = show_name.substr(0,20)+"...";
-											}
-											
-								var content = '<ul><li><div id=fav'+BandRecord.id+' class="lineup_band morehight fav_bands" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'fav\')"><strong class="band_name_fav" >'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+'<br/><span class="darker_text"><span class="band_start_fav">'+start_time+'</span> - <span class="band_end_fav">'+finish_time+'</span><br/>'+band_stage_show+'</span><br/><form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,1)"><option value="off" >Off</option> <option value="on" selected >On</option></select></form> </div></li></ul>';
-											
-											
-											
+								var content = set_up_fav_content(BandRecord);		
 								
 									$("#tab_day_"+val).append(content);
 									//if there is a prev band
@@ -729,9 +708,10 @@ function load_band_fav(){
 													}
 													$("#fav"+BandRecord.id).append("<span class='clash_banner'>Clash with "+show_name_1+"!<br/></span>");
 													$("#fav"+BandRecord.id+", #fav"+preId_1).addClass("clash_bands");
-												}else{
+										}else{
 													//work out time between bands
-													var gaptime = get_gap_time(preEnd_1,start_time);
+													console.log(BandRecord.start_time+"star");
+													var gaptime = get_gap_time(preEnd_1,BandRecord.start_time,0);
 													
 													var warning_icon = "";
 													if(gaptime == "00 mins"){
@@ -756,6 +736,73 @@ function load_band_fav(){
 							$(".lineup_band").trigger('create');
 							$("#tabs_day").trigger('updatelayout');
 						});//exectue
+						
+						txs.executeSql('select * from bands where band_fav=1 and day='+val+' and start_time<700 order by start_time ASC ', [], function(txs, results){
+							var len = results.rows.length, i;
+							
+							var preEnd_1=$( "#tab_day_"+val+" .band_end_fav" ).last().html();
+							//console.log("preEnd1:"+preEnd_1);	
+							//band_name_fav
+							var preBand_1=$( "#tab_day_"+val+" .band_name_fav" ).last().html();
+							//console.log("33band:"+preBand_1);
+							
+							for(i=0;i<len;i++)
+								{	
+								var BandRecord = results.rows.item(i);	
+								var content = set_up_fav_content(BandRecord);		
+								
+									$("#tab_day_"+val).append(content);
+									
+									//there is prev band
+									if(preEnd_1!="undefined"){
+										if(preEnd_1>BandRecord.start_time)
+												{
+													//clash
+													//console.log("clash");
+													var name_length_1 = preBand_1.length;
+													var show_name_1 = preBand_1;
+																if(name_length_1>20){
+																	show_name_1 = show_name_1.substr(0,20)+"...";
+																}
+													if(!$("#fav"+preId_1).hasClass("clash_bands")){
+														$("#fav"+preId_1).append("<span class='clash_banner'>Clash with "+show_name+"!<br/></span>");	
+													}else{
+														//console.log(show_name_1+" MULTI CLASH: "+show_name);
+													}
+													$("#fav"+BandRecord.id).append("<span class='clash_banner'>Clash with "+show_name_1+"!<br/></span>");
+													$("#fav"+BandRecord.id+", #fav"+preId_1).addClass("clash_bands");
+										}else{
+													//work out time between bands
+													console.log("Pre End:"+preEnd_1);
+													var opt = 0;
+													var test = preEnd_1.substring(0,1);
+													if(test==0){
+														opt=0;
+													}
+													
+													var gaptime = get_gap_time(preEnd_1,BandRecord.start_time,opt);
+													
+													var warning_icon = "";
+													if(gaptime == "00 mins"){
+														warning_icon = "<img src='imgs/warning.png' height='12' width='12' />";			 
+													}
+													var content_gap = "<span class='small_text gap_time'><center>|<br/>"+gaptime+warning_icon+"<br/>|</center></span>";
+													$(content_gap).insertBefore($("#fav"+BandRecord.id));
+													
+												}
+											}
+											
+									preBand_1 = BandRecord.band_name;
+									var pre_end_time_1 = BandRecord.finish_time.toString();
+									if(pre_end_time_1.length<4){
+												pre_end_time_1=add_zeros(pre_end_time_1);
+											}
+									preEnd_1 = pre_end_time_1;
+									preId_1 = BandRecord.id;
+								
+								}
+							
+						});//late night bands
 		
 		});//eachloop
 		
@@ -949,6 +996,36 @@ function load_band_fav(){
 	
 }
 
+function set_up_fav_content(BandRecord){
+								var finish_time = BandRecord.finish_time.toString();
+								if(finish_time.length<4){
+												finish_time=add_zeros(finish_time);
+											}
+								finish_time=finish_time.substring(0,2)+":"+finish_time.substring(2,4);
+									
+								var start_time = BandRecord.start_time.toString();
+								if(start_time.length<4){
+												start_time=add_zeros(start_time);
+											}
+								start_time=start_time.substring(0,2)+":"+start_time.substring(2,4);
+								
+								var band_stage_show = BandRecord.stage;
+									if(BandRecord.stage.length>20)
+									{
+										band_stage_show = BandRecord.stage.substr(0,28)+"..";
+									}
+								var name_length = BandRecord.band_name.length;
+								var show_name = BandRecord.band_name;
+											if(name_length>20){
+												show_name = show_name.substr(0,20)+"...";
+											}
+								
+								var content = '<ul><li><div id=fav'+BandRecord.id+' class="lineup_band morehight fav_bands" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'fav\')"><strong class="band_name_fav" >'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+'<br/><span class="darker_text"><span class="band_start_fav">'+start_time+'</span> - <span class="band_end_fav">'+finish_time+'</span><br/>'+band_stage_show+'</span><br/><form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,1)"><option value="off" >Off</option> <option value="on" selected >On</option></select></form> </div></li></ul>';
+								
+								return content;
+}
+
+
 function set_up_lineup_page()
 {
 	/* 
@@ -1040,16 +1117,39 @@ function set_up_fav_page(){
 	
 }
 
-function get_gap_time(preEnd_time,start_time){
+function get_gap_time(preEnd_time,start_time,opt){
+	//if opt is 1 than diff days else opt 0 then same day
 	//console.log(preEnd_time+" formatted with : "+start_time);
+	console.log("start"+start_time);
 	var gap_time = preEnd_time.toString();
-	if(gap_time.length<5){
+	start_time = start_time.toString();
+	
+	//morning band 100
+	if(gap_time.length==3){
+		gap_time="0"+gaptime;
+	}
+	if(start_time.length==3){
+	start_time="0"+start_time;
+	}
+	
+	//does not have :
+	if(gap_time.length==4){
 	gap_time=gap_time.substring(0,2)+":"+gap_time.substring(2,4);
 	}
-	var start_time_band_1 = "01/01/2014 "+gap_time;
-	var end_time_band_1 =  "01/01/2014 "+start_time;
+	if(start_time.length==4){
+	start_time=start_time.substring(0,2)+":"+start_time.substring(2,4);
+	}
+	
+	if(opt == 0){
+		var start_time_band_1 = "01/01/2014 "+gap_time;
+		var end_time_band_1 =  "01/01/2014 "+start_time;		
+	}else{
+		var start_time_band_1 = "01/01/2014 "+gap_time;
+		var end_time_band_1 =  "01/02/2014 "+start_time;
+	}
 	start_time_band_1 = new Date(start_time_band_1);
 	end_time_band_1 = new Date(end_time_band_1);
+	
 	var diff = end_time_band_1 - start_time_band_1;
 	var diffSeconds = diff/1000;
 	var HH = Math.floor(diffSeconds/3600);
@@ -1057,7 +1157,6 @@ function get_gap_time(preEnd_time,start_time){
 	//(condition)?trueval:falseval
 	var formatted = ((HH == 0)?(""):HH+":") + ((MM < 10)?("0" + MM):MM) + ((HH>0)?" hrs":" mins");
 	//var formatted = ((HH < 10)?("0" + HH):HH) + ":" + ((MM < 10)?("0" + MM):MM);
-	
 	
 	return formatted;
 	
