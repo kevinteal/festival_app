@@ -19,9 +19,9 @@ function set_up_band_db(){
 		//thursday sophie tent
 		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (1, "Balls Deep", "Sophie Lancaster Stage", 20150219, 1825, 1855, 0, 1, "Thursday", "video_link_HERE")');
 		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (2, "Gehtika", "Sophie Lancaster Stage", 20150219, 1915, 1945, 0, 1, "Thursday", "video_link_HERE")');
-		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (3, "Incinery", "Sophie Lancaster Stage", 20150219, 0305, 0335, 0, 1, "Thursday", "video_link_HERE")');
-		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (4, "Monument", "Sophie Lancaster Stage", 20150219, 2255, 0035, 0, 1, "Thursday", "video_link_HERE")');
-		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (5, "Jaldaboath", "Sophie Lancaster Stage", 20150219, 0105, 0245, 0, 1, "Thursday", "video_link_HERE")');
+		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (3, "Incinery", "Sophie Lancaster Stage", 20150219, 0135, 0335, 0, 1, "Thursday", "video_link_HERE")');
+		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (4, "Monument", "Sophie Lancaster Stage", 20150219, 2255, 0235, 0, 1, "Thursday", "video_link_HERE")');
+		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (5, "Jaldaboath", "Sophie Lancaster Stage", 20150219, 0005, 0145, 0, 1, "Thursday", "video_link_HERE")');
 	
 		
 		//friday main

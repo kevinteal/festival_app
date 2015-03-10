@@ -93,7 +93,12 @@ function add_to_plan2(e,method){
 			console.log(temp_next);
 			var test = temp_next.substring(0,1);
 			var test2 = temp_pre.substring(0,1);
-		if(temp_pre>temp_next && test!=0){
+			//if both equal 0 set test to 1 (normal)
+			var temp_test = test;
+			if(test == 0 && test2 == 0){
+				temp_test=1;
+			}
+		if(temp_pre>temp_next && temp_test!=0){
 			//clash
 			
 			console.log("clash "+temp_pre+" here "+pre_band+" "+next_band);
@@ -329,27 +334,41 @@ function set_up_main_page(){
 								if(day_arr.indexOf(parseInt(fulldate))!=-1){
 									//alert("day found");
 									
-									txs.executeSql('select * from bands where day = '+fulldate+' and start_time <= '+time+' and finish_time > '+time+' ', [], function(txs, results){
+									//*** if time is before 700 get yesturday bands before 700
+									// band starting at 2345, ongoing till 0013 might not be picked up
+									//search for start time less then 2359 with finish time less than 700
+									// or just search for finish times of less then 700 then with results find any that are above 700
+									//start time
+									//order by finish time ASC limit 1 if start time is greater than 700 NOW PLAYING
+									//if 
+									var sqlfulldate = fulldate;
+									if(time<700){
+										sqlfulldate=sqlfulldate-1;
+										//find any bands that start before midnight and finish after current time
+										//if no results run new search where start time can be normal but sqlfulldate still -1
+	 								   sql = "select * from bands where day = "+sqlfulldate+" and start_time > 700 and finish_time BETWEEN "+time+" AND 700";
+									}else{
+									sql = "select * from bands where day = "+sqlfulldate+" and start_time <= "+time+" and finish_time > "+time;
+									}
+									
+									txs.executeSql(sql, [], function(txs, results){
 									var len = results.rows.length, i;
 									
+									/*  new search here if results ==0
+									txs.executeSql("select * from bands", [], function(txs, results){
+										console.log("here2222");
+									});
+									*/
 									for(i=0;i<len;i++)
 										{	
-										
 											var BandRecord = results.rows.item(i);
 											now_playing_content(BandRecord,"now");
-											
-											
 										}
 										//keep inside transaction as the days will not be known outside due to threading
 										//use the day array to count days							
 										//if dynamic days then will need to set up plan page and lineup page with tabs
 										//set_up_lineup(0,'system');
-										
-										
-										
-
-						});
-						
+									});
 						//main stage = 0
 						for(var i = 0; i<=total_stages;i++){
 									next_bands(txs,i,fulldate,time);
@@ -377,8 +396,15 @@ function next_bands(txs,StageName,fulldate,time){
 //so if time is under 700 look for day BEFORE...
 //if time is greater than 700 look for TODAY
 //if time is greater than 23 AND NO RESULTS FOUND look for day BEFORE
+	var sql = ""
+	if(time<700){
+		sql = "";
+	}else{
+		sql = "select * from bands where day = "+fulldate+" and start_time > "+time+" and stage_rank='"+StageName+"' order by start_time ASC Limit 1";
+	}
 
-	txs.executeSql('select * from bands where day = '+fulldate+' and start_time > '+time+' and stage_rank="'+StageName+'" order by start_time ASC Limit 1', [], function(txs, results){
+
+	txs.executeSql(sql, [], function(txs, results){
 							var len = results.rows.length, i;
 							for(i=0;i<len;i++)
 								{	
@@ -701,6 +727,12 @@ function load_band_fav(){
 																if(name_length_1>20){
 																	show_name_1 = show_name_1.substr(0,20)+"...";
 																}
+													var name_length = BandRecord.band_name.length;
+													var show_name = BandRecord.band_name;
+													if(name_length>20){
+														show_name = show_name.substr(0,20)+"...";
+													}
+													
 													if(!$("#fav"+preId_1).hasClass("clash_bands")){
 														$("#fav"+preId_1).append("<span class='clash_banner'>Clash with "+show_name+"!<br/></span>");	
 													}else{
@@ -740,23 +772,47 @@ function load_band_fav(){
 						txs.executeSql('select * from bands where band_fav=1 and day='+val+' and start_time<700 order by start_time ASC ', [], function(txs, results){
 							var len = results.rows.length, i;
 							
-							var preEnd_1=$( "#tab_day_"+val+" .band_end_fav" ).last().html();
-							//console.log("preEnd1:"+preEnd_1);	
-							//band_name_fav
-							var preBand_1=$( "#tab_day_"+val+" .band_name_fav" ).last().html();
-							//console.log("33band:"+preBand_1);
+							var checker = false;
+							
+							//use dom to check if no prev, jquery will wrap and return true even if false
+							if(document.querySelector("#tab_day_"+val+" .band_name_fav")){
+								var preEnd_1=$( "#tab_day_"+val+" .band_end_fav" ).last().html();
+								//console.log("preEnd1:"+preEnd_1);	
+								//band_name_fav
+								var preBand_1=$( "#tab_day_"+val+" .band_name_fav" ).last().html();
+								//console.log("33band:"+preBand_1);
+								var preId_1=$(" #tab_day_"+val+" .info_i").last().attr("alt");
+								checker=true;
+							}else{
+								//no prev
+								checker = false;
+							}
+							
 							
 							for(i=0;i<len;i++)
-								{	
+								{
+																		
+										
 								var BandRecord = results.rows.item(i);	
 								var content = set_up_fav_content(BandRecord);		
 								
 									$("#tab_day_"+val).append(content);
 									
-									//there is prev band
-									if(preEnd_1!="undefined"){
-										if(preEnd_1>BandRecord.start_time)
+									
+									
+									
+									if(checker==true){
+										//there is prev band
+										console.log("preBand1 "+ preBand_1 +" preend "+preEnd_1);
+										if(preEnd_1.length>4){
+										preEnd_1=preEnd_1.substring(0,2)+""+preEnd_1.substring(3,5);
+										}
+										//pre end could be 1900 and next start HERE will be under 700
+										//*** always going to be a clash
+										//bands here will only start after 0000, so a band end of greater than 700 will not clash
+										if(preEnd_1>BandRecord.start_time && preEnd_1<700)
 												{
+													console.log("preEnd1 clasher: "+preEnd_1);
 													//clash
 													//console.log("clash");
 													var name_length_1 = preBand_1.length;
@@ -764,6 +820,20 @@ function load_band_fav(){
 																if(name_length_1>20){
 																	show_name_1 = show_name_1.substr(0,20)+"...";
 																}
+													var name_length = BandRecord.band_name.length;
+													var show_name = BandRecord.band_name;
+													if(name_length>20){
+														show_name = show_name.substr(0,20)+"...";
+													}
+													
+													 console.log(preId_1+" iddz");
+													 var id_test = preId_1.toString().substring(0,1);
+													 //will equal i if prev is found above via jquery selector
+													 if(id_test=="i"){
+														 preId_1 = preId_1.substring(1,preId_1.length);
+													 }
+													 
+																
 													if(!$("#fav"+preId_1).hasClass("clash_bands")){
 														$("#fav"+preId_1).append("<span class='clash_banner'>Clash with "+show_name+"!<br/></span>");	
 													}else{
@@ -773,11 +843,15 @@ function load_band_fav(){
 													$("#fav"+BandRecord.id+", #fav"+preId_1).addClass("clash_bands");
 										}else{
 													//work out time between bands
+													
 													console.log("Pre End:"+preEnd_1);
+													//if preEnd_1 greater than 700 make opt 1
 													var opt = 0;
 													var test = preEnd_1.substring(0,1);
 													if(test==0){
 														opt=0;
+													}else{
+														opt=1;
 													}
 													
 													var gaptime = get_gap_time(preEnd_1,BandRecord.start_time,opt);
@@ -799,6 +873,8 @@ function load_band_fav(){
 											}
 									preEnd_1 = pre_end_time_1;
 									preId_1 = BandRecord.id;
+									//now prev exists
+									checker==false;
 								
 								}
 							
@@ -1020,7 +1096,7 @@ function set_up_fav_content(BandRecord){
 												show_name = show_name.substr(0,20)+"...";
 											}
 								
-								var content = '<ul><li><div id=fav'+BandRecord.id+' class="lineup_band morehight fav_bands" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'fav\')"><strong class="band_name_fav" >'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" /></span>'+'<br/><span class="darker_text"><span class="band_start_fav">'+start_time+'</span> - <span class="band_end_fav">'+finish_time+'</span><br/>'+band_stage_show+'</span><br/><form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,1)"><option value="off" >Off</option> <option value="on" selected >On</option></select></form> </div></li></ul>';
+								var content = '<ul><li><div id=fav'+BandRecord.id+' class="lineup_band morehight fav_bands" ><span onclick="popup_band(\''+BandRecord.id+'\',\''+show_name+'\',\'fav\')"><strong class="band_name_fav" >'+show_name+'</strong><img class="info_i" src="imgs/info.png" width="12" height="12" alt=i'+BandRecord.id+' /></span>'+'<br/><span class="darker_text"><span class="band_start_fav">'+start_time+'</span> - <span class="band_end_fav">'+finish_time+'</span><br/>'+band_stage_show+'</span><br/><form><select name=flip'+BandRecord.id+' id=flip'+BandRecord.id+' data-role="flipswitch" data-mini="true" data-theme="c" onChange="add_to_plan2(this,1)"><option value="off" >Off</option> <option value="on" selected >On</option></select></form> </div></li></ul>';
 								
 								return content;
 }
@@ -1124,13 +1200,28 @@ function get_gap_time(preEnd_time,start_time,opt){
 	var gap_time = preEnd_time.toString();
 	start_time = start_time.toString();
 	
-	//morning band 100
+	//early mid 0005
+	if(gap_time.length==1){
+		gap_time="000"+gaptime;
+	}
+	if(start_time.length==1){
+	start_time="000"+start_time;
+	}
+	//midnight0010
+	if(gap_time.length==2){
+		gap_time="00"+gaptime;
+	}
+	if(start_time.length==2){
+	start_time="00"+start_time;
+	}
+	//morning band 0100
 	if(gap_time.length==3){
 		gap_time="0"+gaptime;
 	}
 	if(start_time.length==3){
 	start_time="0"+start_time;
 	}
+	
 	
 	//does not have :
 	if(gap_time.length==4){
