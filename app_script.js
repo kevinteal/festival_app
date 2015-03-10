@@ -98,7 +98,7 @@ function add_to_plan2(e,method){
 			if(test == 0 && test2 == 0){
 				temp_test=1;
 			}
-		if(temp_pre>temp_next && temp_test!=0){
+		if((temp_pre>temp_next && temp_test!=0) ||(temp_pre<700 && temp_next>700)){
 			//clash
 			
 			console.log("clash "+temp_pre+" here "+pre_band+" "+next_band);
@@ -340,27 +340,59 @@ function set_up_main_page(){
 									// or just search for finish times of less then 700 then with results find any that are above 700
 									//start time
 									//order by finish time ASC limit 1 if start time is greater than 700 NOW PLAYING
-									//if 
+									
 									var sqlfulldate = fulldate;
 									if(time<700){
 										sqlfulldate=sqlfulldate-1;
 										//find any bands that start before midnight and finish after current time
 										//if no results run new search where start time can be normal but sqlfulldate still -1
+										//sqlfulldate would/is already set to modified -1
 	 								   sql = "select * from bands where day = "+sqlfulldate+" and start_time > 700 and finish_time BETWEEN "+time+" AND 700";
 									}else{
 									sql = "select * from bands where day = "+sqlfulldate+" and start_time <= "+time+" and finish_time > "+time;
 									}
 									
+																		
 									txs.executeSql(sql, [], function(txs, results){
 									var len = results.rows.length, i;
 									
-									/*  new search here if results ==0
-									txs.executeSql("select * from bands", [], function(txs, results){
-										console.log("here2222");
-									});
-									*/
+									
+									//if time is less than 700 the sql full date will be -1 if len is 0 then no current bands,
+									if(time<700 && len == 0 ){
+										db.transaction(function (txs2) {
+											sql = "select * from bands where day = "+sqlfulldate+" and start_time <= "+time+" and finish_time > "+time;
+											txs2.executeSql(sql, [], function(txs, results){
+												var len = results.rows.length, i;
+												//console.log("keek"+len);
+												for(i=0;i<len;i++)
+												{	
+												
+													var BandRecord = results.rows.item(i);
+													now_playing_content(BandRecord,"now");
+												}
+											});
+										});
+									}
+									// third option of time being 2340 and band starting at 2300 and playing until after midnight
+									if(time>700 && len == 0 ){
+										db.transaction(function (txs2) {
+											sql = "select * from bands where day = "+sqlfulldate+" and start_time BETWEEN 700 AND "+time+" and finish_time BETWEEN 000 AND 700";
+											txs2.executeSql(sql, [], function(txs, results){
+												var len = results.rows.length, i;
+												console.log(len);
+												for(i=0;i<len;i++)
+												{	
+													var BandRecord = results.rows.item(i);
+													now_playing_content(BandRecord,"now");
+												}
+											});
+										});
+									}
+									
+									
 									for(i=0;i<len;i++)
 										{	
+										
 											var BandRecord = results.rows.item(i);
 											now_playing_content(BandRecord,"now");
 										}
@@ -397,8 +429,10 @@ function next_bands(txs,StageName,fulldate,time){
 //if time is greater than 700 look for TODAY
 //if time is greater than 23 AND NO RESULTS FOUND look for day BEFORE
 	var sql = ""
+	sqlfulldate = fulldate;
 	if(time<700){
-		sql = "";
+			sqlfulldate=sqlfulldate-1;
+			sql = "select * from bands where day = "+sqlfulldate+" and start_time > "+time+" and stage_rank='"+StageName+"' order by start_time ASC Limit 1";
 	}else{
 		sql = "select * from bands where day = "+fulldate+" and start_time > "+time+" and stage_rank='"+StageName+"' order by start_time ASC Limit 1";
 	}
@@ -406,9 +440,38 @@ function next_bands(txs,StageName,fulldate,time){
 
 	txs.executeSql(sql, [], function(txs, results){
 							var len = results.rows.length, i;
+							
+							//console.log("lenkkl: "+len+" "+StageName);
+							//current time is +700 and no next check bands of start time -700
+							// will need to remodify sqlfulldate to -1 
+							if(time>700 && len == 0 ){
+								var sqlfulldate2 = fulldate - 1;
+									db.transaction(function (txs2) {
+										sql = "select * from bands where day = "+fulldate+" and start_time BETWEEN 000 AND 700 and stage_rank='"+StageName+"' order by start_time ASC Limit 1 ";
+										txs2.executeSql(sql, [], function(txs, results){
+											var len = results.rows.length, i;
+											//console.log(len);
+											for(i=0;i<len;i++)
+												{	
+													var BandRecord = results.rows.item(i);
+													
+													var start_time = BandRecord.start_time.toString();
+													if(start_time.length<4){
+														start_time=add_zeros(start_time);
+													}
+													start_time=start_time.substring(0,2)+":"+start_time.substring(2,4);
+													$("#stage"+BandRecord.stage_rank+"_next_start").text(start_time);
+													
+													now_playing_content(BandRecord,"next");
+												}
+										});
+									});
+							}
+							
+							
+							
 							for(i=0;i<len;i++)
-								{	
-//***if results == 0 and time is greater than 23 or less than 7 search again with start_time before 700		
+								{		
 									var BandRecord = results.rows.item(i);
 									
 									var start_time = BandRecord.start_time.toString();
@@ -718,7 +781,8 @@ function load_band_fav(){
 									$("#tab_day_"+val).append(content);
 									//if there is a prev band
 									if(count_1>0){
-										if(preEnd_1>BandRecord.start_time)
+										//if((10>100) || (700==700 && 100==100)){
+										if((preEnd_1>BandRecord.start_time) || (preEnd_1<700 && BandRecord.start_time>700))
 												{
 													//clash
 													//console.log("clash");
@@ -773,7 +837,7 @@ function load_band_fav(){
 							var len = results.rows.length, i;
 							
 							var checker = false;
-							
+								console.log(checker + " :chck");
 							//use dom to check if no prev, jquery will wrap and return true even if false
 							if(document.querySelector("#tab_day_"+val+" .band_name_fav")){
 								var preEnd_1=$( "#tab_day_"+val+" .band_end_fav" ).last().html();
@@ -799,7 +863,7 @@ function load_band_fav(){
 									$("#tab_day_"+val).append(content);
 									
 									
-									
+									console.log(checker + " :chck");
 									
 									if(checker==true){
 										//there is prev band
@@ -808,7 +872,7 @@ function load_band_fav(){
 										preEnd_1=preEnd_1.substring(0,2)+""+preEnd_1.substring(3,5);
 										}
 										//pre end could be 1900 and next start HERE will be under 700
-										//*** always going to be a clash
+										//always going to be a clash
 										//bands here will only start after 0000, so a band end of greater than 700 will not clash
 										if(preEnd_1>BandRecord.start_time && preEnd_1<700)
 												{
@@ -874,7 +938,8 @@ function load_band_fav(){
 									preEnd_1 = pre_end_time_1;
 									preId_1 = BandRecord.id;
 									//now prev exists
-									checker==false;
+									checker=true;
+									console.log("foring");
 								
 								}
 							
