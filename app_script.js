@@ -327,11 +327,16 @@ function set_up_main_page(){
 									day_name_arr.push(BandRecord.day_name);
 									
 								}
+								console.log("last dat: "+BandRecord.day);
+								console.log("last dat1: "+BandRecord.day+1);
+								//for bands that play on the last night but after midnight add extra check to if below
+								var extra_day = BandRecord.day+1;
+								console.log(extra_day);
 								//if txs is closeed it runs in background and it doesnt add days therefore it skips what would be after
 								
 								//if today is one of the days bands play pull out the bands
 								//alert(day_arr);
-								if(day_arr.indexOf(parseInt(fulldate))!=-1){
+								if( (day_arr.indexOf(parseInt(fulldate))!=-1) || (fulldate == extra_day)){
 									//alert("day found");
 									
 									//*** if time is before 700 get yesturday bands before 700
@@ -363,7 +368,7 @@ function set_up_main_page(){
 											sql = "select * from bands where day = "+sqlfulldate+" and start_time <= "+time+" and finish_time > "+time;
 											txs2.executeSql(sql, [], function(txs, results){
 												var len = results.rows.length, i;
-												//console.log("keek"+len);
+												//console.log("HERHEHEHEkeek"+len);
 												for(i=0;i<len;i++)
 												{	
 												
@@ -828,7 +833,7 @@ function load_band_fav(){
 									preId_1 = BandRecord.id;
 									
 		
-								}//forloop
+								}//forloopkk
 							$(".lineup_band").trigger('create');
 							$("#tabs_day").trigger('updatelayout');
 						});//exectue
@@ -942,7 +947,8 @@ function load_band_fav(){
 									console.log("foring");
 								
 								}
-							
+							$(".lineup_band").trigger('create');
+							$("#tabs_day").trigger('updatelayout');
 						});//late night bands
 		
 		});//eachloop
