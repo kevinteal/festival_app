@@ -101,7 +101,6 @@ function set_up_band_db(){
 		
 		
 		//saturday doom
-		//saturday aor
 		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (61, "In The Hills", "Doom Stage", 20150314, 1200, 1245, 0, 2, "Saturday", "video_link_HERE")');
 		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (62, "Phase Reverse", "Doom Stage", 20150314, 1255, 1335, 0, 2, "Saturday", "video_link_HERE")');
 		tx.executeSql('INSERT INTO bands (id, band_name, stage, day, start_time, finish_time, band_fav, stage_rank, day_name, video_link) VALUES (63, "Steak", "Doom Stage", 20150314, 1350, 1445, 0, 2, "Saturday", "video_link_HERE")');

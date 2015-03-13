@@ -309,7 +309,7 @@ function set_up_main_page(){
 							//$("#panel_stages").listview('refresh');
 							//total stages counts 0 as number!
 							total_stages = last_stage;
-							//console.log(total_stages);
+							//console.log("total stages, hammer aor and doom "+total_stages);
 							//begin output of now playing boxes.
 						});
 						
@@ -361,9 +361,11 @@ function set_up_main_page(){
 									txs.executeSql(sql, [], function(txs, results){
 									var len = results.rows.length, i;
 									
-									
+									//total stages counts 0
+									var num_stages = total_stages +1;
 									//if time is less than 700 the sql full date will be -1 if len is 0 then no current bands,
-									if(time<700 && len == 0 ){
+									if(time<700 && len != num_stages ){
+										console.log("lenkkkkevin");
 										db.transaction(function (txs2) {
 											sql = "select * from bands where day = "+sqlfulldate+" and start_time <= "+time+" and finish_time > "+time;
 											txs2.executeSql(sql, [], function(txs, results){
@@ -371,7 +373,6 @@ function set_up_main_page(){
 												//console.log("HERHEHEHEkeek"+len);
 												for(i=0;i<len;i++)
 												{	
-												
 													var BandRecord = results.rows.item(i);
 													now_playing_content(BandRecord,"now");
 												}
@@ -683,7 +684,7 @@ function popup_band(bandid,name,popupid){
 	console.log(popupid);
 	console.log(bandid);
 	console.log(name);
-	
+	/*
 	db.transaction(function (tx) {
 		
 			tx.executeSql('select * from bands where id = '+bandid+' ', [], function(tx, results){
@@ -699,6 +700,9 @@ function popup_band(bandid,name,popupid){
 			});
 		
 	});
+	*/
+	$( "#popupInfo_"+popupid ).popup( "open" );
+	$("#popupband_"+popupid).text("No Info at this time. Sorry");
 	
 
 }

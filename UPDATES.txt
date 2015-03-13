@@ -1,0 +1,5 @@
+**config edit verison to allow downloadable update
+
+**add new table to db that checks verison, if old verison, drop table bands and re add them.
+
+**band description to db as field
