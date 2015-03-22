@@ -339,7 +339,7 @@ function set_up_main_page(){
 								if( (day_arr.indexOf(parseInt(fulldate))!=-1) || (fulldate == extra_day)){
 									//alert("day found");
 									
-									//*** if time is before 700 get yesturday bands before 700
+									// if time is before 700 get yesturday bands before 700
 									// band starting at 2345, ongoing till 0013 might not be picked up
 									//search for start time less then 2359 with finish time less than 700
 									// or just search for finish times of less then 700 then with results find any that are above 700
@@ -416,7 +416,7 @@ function set_up_main_page(){
 								}else{
 								
 									set_up_lineup_page();
-									$("#not_time").html("Once The Festival Starts Bands Will Appear Here <br/><br/>");
+									$("#not_time").html("Once This Festival Starts Bands Will Appear Here <br/><br/>");
 								}
 								
 						});
@@ -428,7 +428,7 @@ function set_up_main_page(){
 
 
 function next_bands(txs,StageName,fulldate,time){
-//***limit sql to inculde start time of after 0700 unless time is under 700 itself
+//limit sql to inculde start time of after 0700 unless time is under 700 itself
 //if time is under 700 go as normal
 //YOUR GOING TO BE SATURDAY LOOKING FOR FRIDAY RESULTS.
 //so if time is under 700 look for day BEFORE...
